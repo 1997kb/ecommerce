@@ -1,3 +1,57 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
+from .models import *
+from django.views import View
 
 # Create your views here.
+class BaseView(View): # generic view inbuilt
+	views = {}
+	views['categories'] = Category.objects.all()
+	views['subcategories'] = SubCategory.objects.all()
+
+
+class HomeView(BaseView):
+	def get(self,request):
+		self.views['categories'] = Category.objects.all()
+		self.views['sliders'] = Slider.objects.all() #updating dictoinary
+		self.views['sale'] = Item.objects.filter(labels = 'sale')#sale product lai tanxa
+		self.views['items'] = Item.objects.filter(status = 'active') #jasko status active teslai tanne
+		self.views['brands'] = Brand.objects.all()
+		self.views['ads'] = Ad.objects.all()
+		return render(request,'index.html',self.views)
+
+class SubCategoryView(BaseView):
+	def get(self,request,slug):
+
+		id = SubCategory.objects.get(slug=slug).id
+		self.views['subcategory_product'] = Item.objects.filter(subcategory_id = id)
+		return render(request,'subcategory.html',self.views)
+
+class DetailView(BaseView):
+	def get(self,request,slug):
+
+		self.views['review_detail'] = Review.objects.filter(slug = slug)
+		self.views['product_detail'] = Item.objects.filter(slug = slug)
+		return render( request,'product-details.html',self.views)
+
+def review(request):
+	if request.method == 'POST':
+		name = 'admin' #request.user.username
+		email = 'admin@admin.com' #request.user.email
+		comment = request.POST['comment']
+		slug = request.POST['slug']
+		data = Review.objects.create(
+				name = name,
+				email = email,
+				comment = comment,
+				slug = slug
+			)
+		data.save()
+	return redirect(f'/detail/{slug}')   #redirect to same page	
+
+class BrandView(BaseView):
+	def get(self,request,slug):
+
+		
+		id = Brand.objects.get(slug=slug).id
+		self.views['brand_product'] = Item.objects.filter(brand_id = id)
+		return render(request,'brand.html',self.views)	
