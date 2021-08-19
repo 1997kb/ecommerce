@@ -10,5 +10,6 @@ urlpatterns = [
 	path('brand/<slug>',BrandView.as_view(),name='brand'),
 	path('detail/<slug>',DetailView.as_view(),name='detail'),
 	path('review',review,name='review'),
+	path('signup',signup,name='signup'),
 
 ]

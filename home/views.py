@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect
 from .models import *
 from django.views import View
+from django.contrib import messages
+from django.contrib.auth.models import User 
 
 # Create your views here.
 class BaseView(View): # generic view inbuilt
@@ -54,4 +56,38 @@ class BrandView(BaseView):
 		
 		id = Brand.objects.get(slug=slug).id
 		self.views['brand_product'] = Item.objects.filter(brand_id = id)
-		return render(request,'brand.html',self.views)	
+		return render(request,'brand.html',self.views)
+
+def signup(request):
+	if request.method == 'POST':
+		username = request.POST['username']
+		email = request.POST['email']
+		password = request.POST['password']
+		cpassword = request.POST['cpassword']
+		fname = request.POST['fname']
+		lname = request.POST['lname']
+
+		if password == cpassword:
+			if User.objects.filter(username = username).exists():
+				messages.error(request,'The username is already taken')
+				return render(request,'signup.html')
+			elif User.objects.filter(email = email).exists():
+				messages.error(request,'The email is already taken')
+				return render(request,'signup.html')
+			else:
+				user = User.objects.create_user(
+                    username = username,
+                    email = email,
+                    password = password,
+                    first_name = fname,
+                    last_name = lname 
+				)
+				user.save()
+				messages.success(request,'you are registered')
+				return render(request,'signup.html')
+		else:
+			messages.error(request,'The password does not match')
+			return render(request,'signup.html')
+	return render(request,'signup.html')		
+        
+         
