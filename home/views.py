@@ -37,8 +37,8 @@ class DetailView(BaseView):
 
 def review(request):
 	if request.method == 'POST':
-		name = 'admin' #request.user.username
-		email = 'admin@admin.com' #request.user.email
+		name = request.user.username
+		email = request.user.email
 		comment = request.POST['comment']
 		slug = request.POST['slug']
 		data = Review.objects.create(
@@ -88,6 +88,40 @@ def signup(request):
 		else:
 			messages.error(request,'The password does not match')
 			return render(request,'signup.html')
-	return render(request,'signup.html')		
+	return render(request,'signup.html')
+
+def add_to_cart(request):
+	if request.method == 'POST':
+		slug = request.POST['slug']
+		quantity = request.POST['quantity']
+		user = request.user.username
+		items = Item.objects.filter(slug = slug)[0]
+		price = Item.objects.get(slug = slug).price
+		total = int(price) * int(quantity)
+		data = Cart.objects.create(
+			user = user,
+			slug = slug,
+			quantity = quantity,
+			items = items,
+			total = total
+
+
+			)
+		data.save()
+		return redirect('/cart')
+
+class CartView(BaseView):
+	def get(self,request):
+		self.views['my_cart'] = Cart.objects.filter(user = request.user.username,checkout = False)
+
+
+		return render(request,'cart.html',self.views)
+
+
+
+
+		
+
+
         
          

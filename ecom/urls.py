@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('', include('home.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),  #yeti garesi django ko authentication url use garna payo
 ]
 
 if settings.DEBUG: #jati image thapyo teti url bardai janxa
